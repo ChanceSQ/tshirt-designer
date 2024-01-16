@@ -2,13 +2,30 @@
 
 import { useEffect, useState } from "react";
 import { fabric } from "fabric";
+import useFabricHistory from "../helpers/useFabricHistory";
 
 const Fabric = () => {
   const [canvas, setCanvas] = useState<fabric.Canvas>();
+  const { undo, redo } = useFabricHistory(canvas);
+
+  window.addEventListener("keydown", (e) => {
+    e.key === "Backspace" && deleteActiveObject();
+  });
+
+  const deleteActiveObject = () => {
+    const activeObject = canvas?.getActiveObject();
+    canvas && activeObject && canvas?.remove(activeObject);
+  };
 
   useEffect(() => {
     const height = window.innerHeight;
     const width = window.innerWidth;
+
+    const c = new fabric.Canvas("canvas", {
+      height: height,
+      width: width,
+      backgroundColor: "white",
+    });
 
     const resizeCanvas = () => {
       c.setHeight(window.innerHeight);
@@ -17,12 +34,6 @@ const Fabric = () => {
     };
 
     window.addEventListener("resize", resizeCanvas, false);
-
-    const c = new fabric.Canvas("canvas", {
-      height: height - 500,
-      width: width,
-      backgroundColor: "white",
-    });
 
     // settings for all canvas in the app
     fabric.Object.prototype.transparentCorners = false;
@@ -36,7 +47,12 @@ const Fabric = () => {
 
     return () => {
       c.dispose();
+      window.removeEventListener("resize", resizeCanvas, false);
+      window.removeEventListener("keydown", (e) => {
+        e.key === "Backspace" && deleteActiveObject();
+      });
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const addRect = (canvas?: fabric.Canvas) => {
@@ -53,6 +69,9 @@ const Fabric = () => {
     <div>
       <h1>Fabric</h1>
       <button onClick={() => addRect(canvas)}>Add Rectangle</button>
+      <button onClick={() => undo()}>undo</button>
+      <button onClick={() => redo()}>redo</button>
+      <button onClick={() => deleteActiveObject()}>test log</button>
       <canvas id="canvas" />
     </div>
   );
