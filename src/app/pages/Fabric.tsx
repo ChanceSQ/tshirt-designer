@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { fabric } from "fabric";
-import useFabricHistory from "../helpers/useFabricHistory";
+import useFabricJSONHistory from "../helpers/useFabricJSONHistory";
 
 const Fabric = () => {
   const [canvas, setCanvas] = useState<fabric.Canvas>();
-  const { undo, redo } = useFabricHistory(canvas);
+  const { undo, redo } = useFabricJSONHistory(canvas);
 
   window.addEventListener("keydown", (e) => {
     e.key === "Backspace" && deleteActiveObject();
