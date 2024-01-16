@@ -71,7 +71,7 @@ const Fabric = () => {
       <button onClick={() => addRect(canvas)}>Add Rectangle</button>
       <button onClick={() => undo()}>undo</button>
       <button onClick={() => redo()}>redo</button>
-      <button onClick={() => deleteActiveObject()}>test log</button>
+      <button onClick={() => deleteActiveObject()}>Delete</button>
       <canvas id="canvas" />
     </div>
   );
