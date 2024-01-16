@@ -2,22 +2,45 @@
 
 import { useEffect, useState } from "react";
 import { fabric } from "fabric";
-import useFabricJSONHistory from "../helpers/useFabricJSONHistory";
+import useFabricHistory from "../helpers/useFabricHistory";
 
 const Fabric = () => {
   const [canvas, setCanvas] = useState<fabric.Canvas>();
-  const { undo, redo } = useFabricJSONHistory(canvas);
+  const { undo, redo } = useFabricHistory(canvas);
+
+  const keyDownHandler = ({
+    key,
+    ctrlKey,
+    metaKey,
+  }: {
+    key: string;
+    ctrlKey: boolean;
+    metaKey: boolean;
+  }) => {
+    switch (key) {
+      case "Backspace":
+        deleteActiveObjects();
+        break;
+      case "c" || "C":
+        (ctrlKey || metaKey) && console.log("CTRL+C");
+        break;
+      case "v" || "V":
+        (ctrlKey || metaKey) && console.log("CTRL+V");
+        break;
+    }
+  };
 
   window.addEventListener("keydown", (e) => {
-    e.key === "Backspace" && deleteActiveObjects();
+    keyDownHandler(e);
   });
 
   const deleteActiveObjects = () => {
     const activeObjects = canvas?.getActiveObjects();
-    canvas &&
-      activeObjects &&
+    if (canvas && activeObjects?.length) {
       activeObjects.forEach((object) => canvas.remove(object));
-    canvas?.fire("object:modified"); // Required for undo/redo
+      canvas?.discardActiveObject().renderAll();
+      canvas?.fire("object:modified"); // Required for undo/redo
+    }
   };
 
   useEffect(() => {

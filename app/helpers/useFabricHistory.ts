@@ -1,30 +1,28 @@
-import { Object } from "fabric/fabric-impl";
-
 const useFabricHistory = (canvas: fabric.Canvas | undefined) => {
-  let isRedoing = false;
-  let history: (Object | undefined)[] = [];
+  let pointer = 0;
+  let history: string[] = [JSON.stringify(canvas)];
 
-  const historyReset = () => {
-    if (!isRedoing) {
-      history = [];
-    }
-    isRedoing = false;
+  const handleChange = () => {
+    // saves current canvas state as a JSON string
+    const json = JSON.stringify(canvas);
+    // removes history ahead of pointer
+    history = history.slice(0, pointer + 1);
+    // pushes current state to history
+    history.push(json);
+    // sets pointer to last index
+    pointer = history.length - 1;
   };
 
-  canvas?.on("object:added", () => historyReset());
+  canvas?.on("object:modified", () => handleChange());
 
   const undo = () => {
-    if (canvas && canvas._objects.length > 0) {
-      history.push(canvas._objects.pop());
-      canvas.renderAll();
-    }
+    pointer > 0 && pointer--;
+    canvas?.loadFromJSON(history[pointer], () => canvas?.renderAll());
   };
 
   const redo = () => {
-    if (history.length > 0) {
-      isRedoing = true;
-      canvas?.add(history.pop() as Object);
-    }
+    pointer < history.length - 1 && pointer++;
+    canvas?.loadFromJSON(history[pointer], () => canvas?.renderAll());
   };
 
   return {
