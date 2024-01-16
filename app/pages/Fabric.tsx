@@ -9,12 +9,15 @@ const Fabric = () => {
   const { undo, redo } = useFabricJSONHistory(canvas);
 
   window.addEventListener("keydown", (e) => {
-    e.key === "Backspace" && deleteActiveObject();
+    e.key === "Backspace" && deleteActiveObjects();
   });
 
-  const deleteActiveObject = () => {
-    const activeObject = canvas?.getActiveObject();
-    canvas && activeObject && canvas?.remove(activeObject);
+  const deleteActiveObjects = () => {
+    const activeObjects = canvas?.getActiveObjects();
+    canvas &&
+      activeObjects &&
+      activeObjects.forEach((object) => canvas.remove(object));
+    canvas?.fire("object:modified"); // Required for undo/redo
   };
 
   useEffect(() => {
@@ -49,7 +52,7 @@ const Fabric = () => {
       c.dispose();
       window.removeEventListener("resize", resizeCanvas, false);
       window.removeEventListener("keydown", (e) => {
-        e.key === "Backspace" && deleteActiveObject();
+        e.key === "Backspace" && deleteActiveObjects();
       });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -62,8 +65,8 @@ const Fabric = () => {
       stroke: "#2BEBC8",
     });
     canvas?.add(rect);
-    canvas?.fire("object:modified"); // Required for undo/redo
     canvas?.requestRenderAll();
+    canvas?.fire("object:modified"); // Required for undo/redo
   };
 
   return (
@@ -72,7 +75,7 @@ const Fabric = () => {
       <button onClick={() => addRect(canvas)}>Add Rectangle</button>
       <button onClick={() => undo()}>undo</button>
       <button onClick={() => redo()}>redo</button>
-      <button onClick={() => deleteActiveObject()}>Delete</button>
+      <button onClick={() => deleteActiveObjects()}>Delete</button>
       <canvas id="canvas" />
     </div>
   );
