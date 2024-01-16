@@ -75,7 +75,7 @@ const Fabric = () => {
       c.dispose();
       window.removeEventListener("resize", resizeCanvas, false);
       window.removeEventListener("keydown", (e) => {
-        e.key === "Backspace" && deleteActiveObjects();
+        keyDownHandler(e);
       });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
