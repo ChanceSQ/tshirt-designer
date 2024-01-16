@@ -62,6 +62,7 @@ const Fabric = () => {
       stroke: "#2BEBC8",
     });
     canvas?.add(rect);
+    canvas?.fire("object:modified"); // Required for undo/redo
     canvas?.requestRenderAll();
   };
 
