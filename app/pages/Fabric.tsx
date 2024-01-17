@@ -8,6 +8,34 @@ const Fabric = () => {
   const [canvas, setCanvas] = useState<fabric.Canvas>();
   const { undo, redo } = useFabricHistory(canvas);
 
+  // COPY / PASTE
+  let clonedObject = null;
+
+  const copy = () => {
+    canvas?.getActiveObject()?.clone((cloned) => {
+      clonedObject = cloned;
+    });
+  };
+
+  const paste = () => {
+    if (!canvas) {
+      return;
+    }
+    // clone again, so you we do multiple copies.
+    clonedObject.clone((cloned) => {
+      clonedObject = cloned;
+    });
+
+    canvas.discardActiveObject();
+
+    canvas?.add(clonedObject);
+    canvas?.centerObject(clonedObject);
+    canvas?.renderAll();
+    canvas?.fire("object:modified");
+  };
+
+  //
+
   const keyDownHandler = ({
     key,
     ctrlKey,
@@ -22,10 +50,16 @@ const Fabric = () => {
         deleteActiveObjects();
         break;
       case "c" || "C":
-        (ctrlKey || metaKey) && console.log("CTRL+C");
+        (ctrlKey || metaKey) && copy();
         break;
       case "v" || "V":
-        (ctrlKey || metaKey) && console.log("CTRL+V");
+        (ctrlKey || metaKey) && paste();
+        break;
+      case "y" || "Y":
+        (ctrlKey || metaKey) && redo();
+        break;
+      case "z" || "Z":
+        (ctrlKey || metaKey) && undo();
         break;
     }
   };
@@ -96,8 +130,8 @@ const Fabric = () => {
     <div>
       <h1>Fabric</h1>
       <button onClick={() => addRect(canvas)}>Add Rectangle</button>
-      <button onClick={() => undo()}>undo</button>
-      <button onClick={() => redo()}>redo</button>
+      <button onClick={() => undo()}>Undo</button>
+      <button onClick={() => redo()}>Redo</button>
       <button onClick={() => deleteActiveObjects()}>Delete</button>
       <canvas id="canvas" />
     </div>
