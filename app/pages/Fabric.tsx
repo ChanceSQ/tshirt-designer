@@ -18,7 +18,7 @@ const Fabric = () => {
   };
 
   const paste = () => {
-    if (!canvas) {
+    if (!canvas || !clonedObject) {
       return;
     }
     // clone again, so you we do multiple copies.
@@ -67,6 +67,22 @@ const Fabric = () => {
   window.addEventListener("keydown", (e) => {
     keyDownHandler(e);
   });
+
+  const download = () => {
+    const dataURL = canvas.toDataURL({
+      width: canvas.width,
+      height: canvas.height,
+      left: 0,
+      top: 0,
+      format: "png",
+    });
+    const link = document.createElement("a");
+    link.download = "image.png";
+    link.href = dataURL;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const deleteActiveObjects = () => {
     const activeObjects = canvas?.getActiveObjects();
@@ -119,7 +135,6 @@ const Fabric = () => {
     const rect = new fabric.Rect({
       height: 280,
       width: 200,
-      stroke: "#2BEBC8",
     });
     canvas?.add(rect);
     canvas?.requestRenderAll();
@@ -133,6 +148,7 @@ const Fabric = () => {
       <button onClick={() => undo()}>Undo</button>
       <button onClick={() => redo()}>Redo</button>
       <button onClick={() => deleteActiveObjects()}>Delete</button>
+      <button onClick={() => download()}>Download</button>
       <canvas id="canvas" />
     </div>
   );
