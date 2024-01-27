@@ -153,12 +153,15 @@ const Fabric = () => {
 
     window.addEventListener("resize", resizeCanvas, false);
 
-    // settings for all canvas in the app
+    // settings for all objects in the app
+    fabric.Object.prototype.padding = 5;
     fabric.Object.prototype.transparentCorners = false;
-    fabric.Object.prototype.cornerColor = "#2BEBC8";
+    fabric.Object.prototype.cornerColor = "#007AFF";
     fabric.Object.prototype.cornerStyle = "rect";
-    fabric.Object.prototype.cornerStrokeColor = "#2BEBC8";
-    fabric.Object.prototype.cornerSize = 6;
+    fabric.Object.prototype.cornerSize = 8;
+    fabric.Object.prototype.borderColor = "#8fc5ff";
+    fabric.Object.prototype.borderDashArray = [5, 5];
+    fabric.Object.prototype.borderScaleFactor = 2;
 
     resizeCanvas();
     setCanvas(c);
@@ -181,9 +184,6 @@ const Fabric = () => {
     const rect = new fabric.Rect({
       height: 280,
       width: 200,
-      borderDashArray: [5, 5],
-      borderScaleFactor: 2,
-      padding: 5,
     });
     canvas?.add(rect);
     canvas?.requestRenderAll();
