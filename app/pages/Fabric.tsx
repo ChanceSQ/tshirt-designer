@@ -181,6 +181,9 @@ const Fabric = () => {
     const rect = new fabric.Rect({
       height: 280,
       width: 200,
+      borderDashArray: [5, 5],
+      borderScaleFactor: 2,
+      padding: 5,
     });
     canvas?.add(rect);
     canvas?.requestRenderAll();
