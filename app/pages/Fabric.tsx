@@ -118,9 +118,37 @@ const Fabric = () => {
     });
 
     const resizeCanvas = () => {
-      c.setHeight(window.innerHeight);
-      c.setWidth(window.innerWidth);
-      c.renderAll();
+      const newWidth = window.innerWidth <= 1000 ? window.innerWidth : 1000;
+      const newHeight = window.innerHeight <= 1000 ? window.innerHeight : 1000;
+
+      if (!c) {
+        return;
+      }
+
+      if (c.width != newWidth || c.height != newHeight) {
+        const scaleX = newWidth / c.width;
+        const scaleY = newHeight / c.height;
+        var objects = c.getObjects();
+        for (var i in objects) {
+          // Optional Scaling of objects (if you want that)
+          // objects[i].scaleX = objects[i].scaleX * scaleX;
+          // objects[i].scaleY = objects[i].scaleY * scaleY;
+          objects[i].left = objects[i].left * scaleX;
+          objects[i].top = objects[i].top * scaleY;
+          objects[i].setCoords();
+        }
+        var obj = c.backgroundImage;
+        if (obj) {
+          obj.scaleX = obj.scaleX * scaleX;
+          obj.scaleY = obj.scaleY * scaleY;
+        }
+
+        c.discardActiveObject();
+        c.setWidth(c.getWidth() * scaleX);
+        c.setHeight(c.getHeight() * scaleY);
+        c.renderAll();
+        c.calcOffset();
+      }
     };
 
     window.addEventListener("resize", resizeCanvas, false);
