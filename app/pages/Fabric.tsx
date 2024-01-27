@@ -8,13 +8,23 @@ const Fabric = () => {
   const [canvas, setCanvas] = useState<fabric.Canvas>();
   const { undo, redo } = useFabricHistory(canvas);
 
-  // COPY / PASTE
-  let clonedObject = null;
+  // COPY / CUT / PASTE
+  let clonedObject: fabric.Object | null = null;
 
   const copy = () => {
-    canvas?.getActiveObject()?.clone((cloned) => {
+    canvas?.getActiveObject()?.clone((cloned: fabric.Object) => {
       clonedObject = cloned;
     });
+
+    canvas?.discardActiveObject();
+  };
+
+  const cut = () => {
+    canvas?.getActiveObject()?.clone((cloned: fabric.Object) => {
+      clonedObject = cloned;
+    });
+
+    deleteActiveObjects();
   };
 
   const paste = () => {
@@ -22,7 +32,7 @@ const Fabric = () => {
       return;
     }
     // clone again, so you we do multiple copies.
-    clonedObject.clone((cloned) => {
+    clonedObject.clone((cloned: fabric.Object) => {
       clonedObject = cloned;
     });
 
@@ -30,7 +40,7 @@ const Fabric = () => {
 
     canvas?.add(clonedObject);
     canvas?.centerObject(clonedObject);
-    canvas?.renderAll();
+
     canvas?.fire("object:modified");
   };
 
@@ -49,12 +59,6 @@ const Fabric = () => {
       case "Backspace":
         deleteActiveObjects();
         break;
-      case "c" || "C":
-        (ctrlKey || metaKey) && copy();
-        break;
-      case "v" || "V":
-        (ctrlKey || metaKey) && paste();
-        break;
       case "y" || "Y":
         (ctrlKey || metaKey) && redo();
         break;
@@ -68,14 +72,24 @@ const Fabric = () => {
     keyDownHandler(e);
   });
 
+  window.addEventListener("paste", () => paste());
+  window.addEventListener("copy", () => copy());
+  window.addEventListener("cut", () => cut());
+  window.addEventListener("undo", () => undo());
+
   const download = () => {
-    const dataURL = canvas.toDataURL({
+    const dataURL = canvas?.toDataURL({
       width: canvas.width,
       height: canvas.height,
       left: 0,
       top: 0,
       format: "png",
     });
+
+    if (!dataURL) {
+      return;
+    }
+
     const link = document.createElement("a");
     link.download = "image.png";
     link.href = dataURL;
@@ -127,6 +141,10 @@ const Fabric = () => {
       window.removeEventListener("keydown", (e) => {
         keyDownHandler(e);
       });
+      window.removeEventListener("paste", () => paste());
+      window.removeEventListener("copy", () => copy());
+      window.removeEventListener("cut", () => cut());
+      window.removeEventListener("undo", () => undo());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -144,11 +162,14 @@ const Fabric = () => {
   return (
     <div>
       <h1>Fabric</h1>
-      <button onClick={() => addRect(canvas)}>Add Rectangle</button>
+      <button onClick={() => addRect(canvas)}>Add Rectangle</button>|
       <button onClick={() => undo()}>Undo</button>
-      <button onClick={() => redo()}>Redo</button>
-      <button onClick={() => deleteActiveObjects()}>Delete</button>
-      <button onClick={() => download()}>Download</button>
+      <button onClick={() => redo()}>Redo</button>|
+      <button onClick={() => copy()}>Copy</button>
+      <button onClick={() => cut()}>Cut</button>
+      <button onClick={() => paste()}>Paste</button>
+      <button onClick={() => deleteActiveObjects()}>Delete</button>|
+      <button onClick={() => download()}>Download Canvas</button>
       <canvas id="canvas" />
     </div>
   );
