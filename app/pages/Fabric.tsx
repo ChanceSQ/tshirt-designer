@@ -65,6 +65,9 @@ const Fabric = () => {
       case "z" || "Z":
         (ctrlKey || metaKey) && undo();
         break;
+      case "l" || "L":
+        (ctrlKey || metaKey) && lockObjects();
+        break;
     }
   };
 
@@ -107,6 +110,26 @@ const Fabric = () => {
     }
   };
 
+  const lockObjects = () => {
+    const activeObjects = canvas?.getActiveObjects();
+
+    if (canvas && activeObjects?.length) {
+      activeObjects.forEach((object) => {
+        object.lockMovementX = !object.lockMovementX;
+        object.lockMovementY = !object.lockMovementY;
+        object.lockRotation = !object.lockRotation;
+        object.lockScalingX = !object.lockScalingX;
+        object.lockScalingY = !object.lockScalingY;
+        object.lockUniScaling = !object.lockUniScaling;
+        object.lockSkewingX = !object.lockSkewingX;
+        object.lockSkewingY = !object.lockSkewingY;
+        object.lockScalingFlip = !object.lockScalingFlip;
+      });
+    }
+
+    canvas?.discardActiveObject().renderAll();
+  };
+
   useEffect(() => {
     const height = window.innerHeight;
     const width = window.innerWidth;
@@ -114,7 +137,7 @@ const Fabric = () => {
     const c = new fabric.Canvas("canvas", {
       height: height,
       width: width,
-      backgroundColor: "white",
+      preserveObjectStacking: true,
     });
 
     const resizeCanvas = () => {
@@ -184,6 +207,18 @@ const Fabric = () => {
     const rect = new fabric.Rect({
       height: 280,
       width: 200,
+      fill: "blue",
+    });
+    canvas?.add(rect);
+    canvas?.requestRenderAll();
+    canvas?.fire("object:modified"); // Required for undo/redo
+  };
+
+  const addTri = (canvas?: fabric.Canvas) => {
+    const rect = new fabric.Triangle({
+      height: 150,
+      width: 150,
+      fill: "red",
     });
     canvas?.add(rect);
     canvas?.requestRenderAll();
@@ -194,6 +229,7 @@ const Fabric = () => {
     <div>
       <h1>Fabric</h1>
       <button onClick={() => addRect(canvas)}>Add Rectangle</button>|
+      <button onClick={() => addTri(canvas)}>Add Triangle</button>|
       <button onClick={() => undo()}>Undo</button>
       <button onClick={() => redo()}>Redo</button>|
       <button onClick={() => copy()}>Copy</button>
@@ -201,7 +237,16 @@ const Fabric = () => {
       <button onClick={() => paste()}>Paste</button>
       <button onClick={() => deleteActiveObjects()}>Delete</button>|
       <button onClick={() => download()}>Download Canvas</button>
-      <canvas id="canvas" />
+      <button onClick={() => console.log("### canvas: ", canvas)}>Log</button>
+      <div
+        style={{
+          background: `repeating-conic-gradient(#eee 0% 25%, #fff 0% 50%) 
+        50% / 20px 20px`,
+          width: "max-content",
+        }}
+      >
+        <canvas id="canvas" />
+      </div>
     </div>
   );
 };
