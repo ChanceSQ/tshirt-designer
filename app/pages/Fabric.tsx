@@ -151,13 +151,20 @@ const Fabric = () => {
       if (c.width != newWidth || c.height != newHeight) {
         const scaleX = newWidth / c.width;
         const scaleY = newHeight / c.height;
+        const scale = scaleX * scaleY;
+
         var objects = c.getObjects();
         for (var i in objects) {
-          // Optional Scaling of objects (if you want that)
-          // objects[i].scaleX = objects[i].scaleX * scaleX;
-          // objects[i].scaleY = objects[i].scaleY * scaleY;
-          objects[i].left = objects[i].left * scaleX;
-          objects[i].top = objects[i].top * scaleY;
+          /**
+           * @description Scale objects relative to the width of the canvas
+           */
+          objects[i].scaleX = objects[i].scaleX * scale;
+          objects[i].scaleY = objects[i].scaleY * scale;
+          /**
+           * @description reposition objects relative to the width and height of the canvas
+           */
+          objects[i].left = objects[i].left * scale;
+          objects[i].top = objects[i].top * scale;
           objects[i].setCoords();
         }
         var obj = c.backgroundImage;
