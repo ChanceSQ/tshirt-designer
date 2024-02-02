@@ -87,6 +87,7 @@ const Fabric = () => {
       left: 0,
       top: 0,
       format: "png",
+      multiplier: 8,
     });
 
     if (!dataURL) {
@@ -232,11 +233,22 @@ const Fabric = () => {
     canvas?.fire("object:modified"); // Required for undo/redo
   };
 
+  const addText = (canvas?: fabric.Canvas) => {
+    const text = new fabric.Text("Hello World", {
+      fontSize: 30,
+      fill: "orange",
+    });
+    canvas?.add(text);
+    canvas?.requestRenderAll();
+    canvas?.fire("object:modified"); // Required for undo/redo
+  };
+
   return (
     <div>
       <h1>Fabric</h1>
       <button onClick={() => addRect(canvas)}>Add Rectangle</button>|
       <button onClick={() => addTri(canvas)}>Add Triangle</button>|
+      <button onClick={() => addText(canvas)}>Add Text</button>|
       <button onClick={() => undo()}>Undo</button>
       <button onClick={() => redo()}>Redo</button>|
       <button onClick={() => copy()}>Copy</button>
