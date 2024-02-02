@@ -211,7 +211,7 @@ const Fabric = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const addRect = (canvas?: fabric.Canvas) => {
+  const addRect = () => {
     const rect = new fabric.Rect({
       height: 280,
       width: 200,
@@ -222,7 +222,7 @@ const Fabric = () => {
     canvas?.fire("object:modified"); // Required for undo/redo
   };
 
-  const addTri = (canvas?: fabric.Canvas) => {
+  const addTri = () => {
     const rect = new fabric.Triangle({
       height: 150,
       width: 150,
@@ -233,7 +233,7 @@ const Fabric = () => {
     canvas?.fire("object:modified"); // Required for undo/redo
   };
 
-  const addText = (canvas?: fabric.Canvas) => {
+  const addText = () => {
     const text = new fabric.Text("Hello World", {
       fontSize: 30,
       fill: "orange",
@@ -246,9 +246,9 @@ const Fabric = () => {
   return (
     <div>
       <h1>Fabric</h1>
-      <button onClick={() => addRect(canvas)}>Add Rectangle</button>|
-      <button onClick={() => addTri(canvas)}>Add Triangle</button>|
-      <button onClick={() => addText(canvas)}>Add Text</button>|
+      <button onClick={() => addRect()}>Add Rectangle</button>|
+      <button onClick={() => addTri()}>Add Triangle</button>|
+      <button onClick={() => addText()}>Add Text</button>|
       <button onClick={() => undo()}>Undo</button>
       <button onClick={() => redo()}>Redo</button>|
       <button onClick={() => copy()}>Copy</button>
