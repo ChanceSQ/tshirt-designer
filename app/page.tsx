@@ -1,5 +1,5 @@
-import Fabric from "./pages/Fabric";
+import Home from "./pages/Home";
 
-export default function Home() {
-  return <Fabric />;
+export default function Page() {
+  return <Home />;
 }

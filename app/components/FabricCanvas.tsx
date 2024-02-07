@@ -2,49 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { fabric } from "fabric";
-import useFabricHistory from "../helpers/useFabricHistory";
+import {
+  useCanvasControls,
+  useAddObject,
+  useObjectControls,
+  useFabricHistory,
+} from "@/helpers/canvasFunctions";
 
-const Fabric = () => {
+const FabricCanvas = () => {
   const [canvas, setCanvas] = useState<fabric.Canvas>();
   const { undo, redo } = useFabricHistory(canvas);
-
-  // COPY / CUT / PASTE
-  let clonedObject: fabric.Object | null = null;
-
-  const copy = () => {
-    canvas?.getActiveObject()?.clone((cloned: fabric.Object) => {
-      clonedObject = cloned;
-    });
-
-    canvas?.discardActiveObject();
-  };
-
-  const cut = () => {
-    canvas?.getActiveObject()?.clone((cloned: fabric.Object) => {
-      clonedObject = cloned;
-    });
-
-    deleteActiveObjects();
-  };
-
-  const paste = () => {
-    if (!canvas || !clonedObject) {
-      return;
-    }
-    // clone again, so you we do multiple copies.
-    clonedObject.clone((cloned: fabric.Object) => {
-      clonedObject = cloned;
-    });
-
-    canvas.discardActiveObject();
-
-    canvas?.add(clonedObject);
-    canvas?.centerObject(clonedObject);
-
-    canvas?.fire("object:modified");
-  };
-
-  //
+  const { deleteActiveObjects, copy, cut, paste, lock } =
+    useObjectControls(canvas);
+  const { addRect, addTri, addText } = useAddObject(canvas);
+  const { downloadCanvas } = useCanvasControls(canvas);
 
   const keyDownHandler = ({
     key,
@@ -66,7 +37,7 @@ const Fabric = () => {
         (ctrlKey || metaKey) && undo();
         break;
       case "l" || "L":
-        (ctrlKey || metaKey) && lockObjects();
+        (ctrlKey || metaKey) && lock();
         break;
     }
   };
@@ -79,57 +50,6 @@ const Fabric = () => {
   window.addEventListener("copy", () => copy());
   window.addEventListener("cut", () => cut());
   window.addEventListener("undo", () => undo());
-
-  const download = () => {
-    const dataURL = canvas?.toDataURL({
-      width: canvas.width,
-      height: canvas.height,
-      left: 0,
-      top: 0,
-      format: "png",
-      multiplier: 8,
-    });
-
-    if (!dataURL) {
-      return;
-    }
-
-    const link = document.createElement("a");
-    link.download = "image.png";
-    link.href = dataURL;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const deleteActiveObjects = () => {
-    const activeObjects = canvas?.getActiveObjects();
-    if (canvas && activeObjects?.length) {
-      activeObjects.forEach((object) => canvas.remove(object));
-      canvas?.discardActiveObject().renderAll();
-      canvas?.fire("object:modified"); // Required for undo/redo
-    }
-  };
-
-  const lockObjects = () => {
-    const activeObjects = canvas?.getActiveObjects();
-
-    if (canvas && activeObjects?.length) {
-      activeObjects.forEach((object) => {
-        object.lockMovementX = !object.lockMovementX;
-        object.lockMovementY = !object.lockMovementY;
-        object.lockRotation = !object.lockRotation;
-        object.lockScalingX = !object.lockScalingX;
-        object.lockScalingY = !object.lockScalingY;
-        object.lockUniScaling = !object.lockUniScaling;
-        object.lockSkewingX = !object.lockSkewingX;
-        object.lockSkewingY = !object.lockSkewingY;
-        object.lockScalingFlip = !object.lockScalingFlip;
-      });
-    }
-
-    canvas?.discardActiveObject().renderAll();
-  };
 
   useEffect(() => {
     const height = window.innerHeight;
@@ -211,38 +131,6 @@ const Fabric = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const addRect = () => {
-    const rect = new fabric.Rect({
-      height: 280,
-      width: 200,
-      fill: "blue",
-    });
-    canvas?.add(rect);
-    canvas?.requestRenderAll();
-    canvas?.fire("object:modified"); // Required for undo/redo
-  };
-
-  const addTri = () => {
-    const rect = new fabric.Triangle({
-      height: 150,
-      width: 150,
-      fill: "red",
-    });
-    canvas?.add(rect);
-    canvas?.requestRenderAll();
-    canvas?.fire("object:modified"); // Required for undo/redo
-  };
-
-  const addText = () => {
-    const text = new fabric.Text("Hello World", {
-      fontSize: 30,
-      fill: "orange",
-    });
-    canvas?.add(text);
-    canvas?.requestRenderAll();
-    canvas?.fire("object:modified"); // Required for undo/redo
-  };
-
   return (
     <div>
       <h1>Fabric</h1>
@@ -255,7 +143,7 @@ const Fabric = () => {
       <button onClick={() => cut()}>Cut</button>
       <button onClick={() => paste()}>Paste</button>
       <button onClick={() => deleteActiveObjects()}>Delete</button>|
-      <button onClick={() => download()}>Download Canvas</button>
+      <button onClick={() => downloadCanvas()}>Download Canvas</button>
       <button onClick={() => console.log("### canvas: ", canvas)}>Log</button>
       <div
         style={{
@@ -270,4 +158,4 @@ const Fabric = () => {
   );
 };
 
-export default Fabric;
+export default FabricCanvas;
